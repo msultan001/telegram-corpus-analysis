@@ -48,3 +48,22 @@ models:
           - relationships:
               to: ref('dim_dates')
               field: date_key
+  - name: fct_image_detections
+    description: "Fact table for image detections produced by YOLO and classification."
+    columns:
+      - name: detection_id
+        tests:
+          - not_null
+          - unique
+      - name: message_id
+        tests:
+          - not_null
+      - name: channel_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_channels')
+              field: channel_id
+      - name: product_label
+        tests:
+          - not_null
