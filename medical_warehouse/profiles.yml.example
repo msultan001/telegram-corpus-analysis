@@ -1,0 +1,14 @@
+# Example dbt profiles.yml for local development
+your_project:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      user: your_user
+      password: your_password
+      port: 5432
+      dbname: telegram_db
+      schema: analytics
+      threads: 1
+      keepalives_idle: 0

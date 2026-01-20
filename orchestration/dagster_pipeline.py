@@ -33,7 +33,8 @@ def dbt_op():
 def yolo_op():
     logger.info("Running YOLO detection")
     # Example weights path; in prod, use artifact store path
-    subprocess.run(["python", "src/yolo_detect.py", "--weights", "models/yolo_weights.pt"], check=True)
+    # Use the repository root weights file (yolov8n.pt) to match project artifact
+    subprocess.run(["python", "src/yolo_detect.py", "--weights", "yolov8n.pt"], check=True)
     logger.info("YOLO completed")
 
 

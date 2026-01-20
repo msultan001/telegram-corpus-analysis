@@ -8,7 +8,6 @@ select
     message_id,
     image_path,
     product_label,
-    classification,
     score,
     detection_timestamp
 from detections

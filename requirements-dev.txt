@@ -1,0 +1,10 @@
+pytest
+httpx
+black
+isort
+flake8
+dbt-core
+alembic
+SQLAlchemy
+psycopg2-binary
+dbt-postgres

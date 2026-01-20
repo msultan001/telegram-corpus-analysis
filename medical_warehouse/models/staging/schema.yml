@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: raw
+    schema: public
+    tables:
+      - name: stg_image_detections
+        description: "Table populated by scripts/load_detections.py from YOLO CSV outputs"
+        tests:
+          - not_null:
+              column_name: message_id
+          - not_null:
+              column_name: channel_id

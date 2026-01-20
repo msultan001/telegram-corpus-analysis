@@ -18,8 +18,18 @@ CLASS_MAP = {
     # map model class names or indices to our categories
     'product': 'product_display',
     'packaging': 'product_display',
+    'bottle': 'product_display',
+    'cup': 'product_display',
     'label': 'promotional',
     'logo': 'promotional',
+    # lifestyle mappings (common COCO classes)
+    'person': 'lifestyle',
+    'face': 'lifestyle',
+    'hand': 'lifestyle',
+    'sports ball': 'lifestyle',
+    'chair': 'lifestyle',
+    'couch': 'lifestyle',
+    'dining table': 'lifestyle',
 }
 
 
@@ -35,6 +45,18 @@ def run_inference(weights: str, device: str = 'cpu', conf_thresh: float = 0.25):
             raise RuntimeError('No YOLO model available')
 
     results_rows = []
+    def extract_message_id_from_path(image_path: str):
+        base = os.path.basename(image_path)
+        parts = base.split("_")
+        if len(parts) < 2:
+            return None
+        msg_part = parts[1]
+        msg_id = os.path.splitext(msg_part)[0]
+        try:
+            return int(msg_id)
+        except Exception:
+            return None
+
     for channel_dir in Path(IMAGE_DIR).iterdir():
         if not channel_dir.is_dir():
             continue
@@ -50,6 +72,7 @@ def run_inference(weights: str, device: str = 'cpu', conf_thresh: float = 0.25):
                 elif isinstance(res, list) and len(res) > 0 and hasattr(res[0], 'boxes'):
                     boxes = res[0].boxes
 
+                message_id = extract_message_id_from_path(str(img))
                 for b in boxes:
                     # attempt to extract label and confidence
                     try:
@@ -66,6 +89,7 @@ def run_inference(weights: str, device: str = 'cpu', conf_thresh: float = 0.25):
                     detection_ts = datetime.utcnow().isoformat()
                     results_rows.append({
                         'channel_id': channel_dir.name,
+                        'message_id': message_id,
                         'image_path': str(img),
                         'product_label': product_label,
                         'original_label': label,
@@ -77,7 +101,7 @@ def run_inference(weights: str, device: str = 'cpu', conf_thresh: float = 0.25):
 
     csv_path = os.path.join(OUTPUT_DIR, f'detections_{datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")}.csv')
     with open(csv_path, 'w', newline='', encoding='utf-8') as cf:
-        writer = csv.DictWriter(cf, fieldnames=['channel_id','image_path','product_label','original_label','score','detection_timestamp'])
+        writer = csv.DictWriter(cf, fieldnames=['channel_id','message_id','image_path','product_label','original_label','score','detection_timestamp'])
         writer.writeheader()
         for r in results_rows:
             writer.writerow(r)

@@ -1,3 +1,16 @@
+your_project:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      user: postgres
+      password: password
+      port: 5432
+      dbname: telegram_db
+      schema: analytics
+      threads: 1
+      keepalives_idle: 0
 telegram_analysis:
   outputs:
     dev:
@@ -5,7 +18,7 @@ telegram_analysis:
       host: "{{ env_var('DB_HOST', 'localhost') }}"
       user: "{{ env_var('DB_USER', 'postgres') }}"
       password: "{{ env_var('DB_PASSWORD', 'password') }}"
-      port: {{ env_var('DB_PORT', 5432) | int }}
+      port: "{{ env_var('DB_PORT', 5432) | int }}"
       dbname: "{{ env_var('DB_NAME', 'telegram_db') }}"
       schema: public
       threads: 1

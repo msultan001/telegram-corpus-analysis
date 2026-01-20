@@ -17,7 +17,7 @@ def health_check():
     return {"status": "healthy"}
 
 
-@app.get("/top-products")
+@app.get("/top-products", response_model=List[schemas.TopProduct])
 def top_products(limit: int = Query(10, ge=1, le=100)):
     """Return top product image references by detection count."""
     with engine.connect() as conn:
@@ -26,7 +26,7 @@ def top_products(limit: int = Query(10, ge=1, le=100)):
     return [{"label": r[0], "count": int(r[1])} for r in res]
 
 
-@app.get("/channel-activity")
+@app.get("/channel-activity", response_model=List[schemas.ChannelActivityPoint])
 def channel_activity(channel_id: Optional[int] = None, days: int = 30):
     """Return message counts per day for a channel (or overall if channel_id omitted)."""
     with engine.connect() as conn:
@@ -39,7 +39,7 @@ def channel_activity(channel_id: Optional[int] = None, days: int = 30):
     return [{"date": str(r[0]), "count": int(r[1])} for r in res]
 
 
-@app.get("/message-search")
+@app.get("/message-search", response_model=List[schemas.MessageSearchResult])
 def message_search(q: str = Query(..., min_length=1), limit: int = Query(50, le=100)):
     """Simple full-text search over message text."""
     with engine.connect() as conn:
@@ -49,7 +49,7 @@ def message_search(q: str = Query(..., min_length=1), limit: int = Query(50, le=
     return [{"message_id": r[0], "channel_id": r[1], "date": str(r[2]), "text": r[3]} for r in res]
 
 
-@app.get("/visual-content")
+@app.get("/visual-content", response_model=List[schemas.Detection])
 def visual_content(label: Optional[str] = None, limit: int = 50):
     """Returns recent images and detection metadata. Filter by label if provided."""
     with engine.connect() as conn:
