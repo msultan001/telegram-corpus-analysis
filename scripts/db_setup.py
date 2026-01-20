@@ -18,6 +18,7 @@ def setup_database():
         """
         CREATE TABLE IF NOT EXISTS raw_messages (
             id SERIAL PRIMARY KEY,
+            channel_id BIGINT,
             channel_name TEXT NOT NULL,
             message_id INTEGER NOT NULL,
             message_data JSONB NOT NULL,

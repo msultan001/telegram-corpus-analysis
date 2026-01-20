@@ -21,24 +21,37 @@ def load_json_to_db():
         for file in files:
             if file.endswith(".json"):
                 file_path = os.path.join(root, file)
-                channel_name = file.replace(".json", "")
-                
+                # Filename pattern: <channel_id>_<channel_name>_<date>.json OR <channel_name>.json
+                base = file.replace('.json', '')
+                parts = base.split('_')
+                channel_id = None
+                channel_name = base
+                if len(parts) >= 3 and parts[0].isdigit():
+                    channel_id = int(parts[0])
+                    # join remaining parts except date
+                    channel_name = '_'.join(parts[1:-1]) if len(parts) > 2 else parts[1]
+                else:
+                    channel_name = base
+
                 with open(file_path, "r", encoding="utf-8") as f:
                     messages = json.load(f)
-                    
-                    data_to_insert = [
-                        (channel_name, msg["id"], json.dumps(msg))
-                        for msg in messages
-                    ]
-                    
+
+                    data_to_insert = []
+                    for msg in messages:
+                        cid = channel_id
+                        # attempt to read channel_id from message if not in filename
+                        if cid is None:
+                            cid = msg.get('channel_id')
+                        data_to_insert.append((cid, channel_name, msg["id"], json.dumps(msg)))
+
                     insert_query = """
-                    INSERT INTO raw_messages (channel_name, message_id, message_data)
+                    INSERT INTO raw_messages (channel_id, channel_name, message_id, message_data)
                     VALUES %s
                     ON CONFLICT (channel_name, message_id) DO UPDATE 
                     SET message_data = EXCLUDED.message_data,
                         scraped_at = CURRENT_TIMESTAMP
                     """
-                    
+
                     execute_values(cur, insert_query, data_to_insert)
                     print(f"Loaded {len(messages)} messages for {channel_name} from {file_path}")
     
